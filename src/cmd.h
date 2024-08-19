@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
-
+#include <stdlib.h>
+#define MAX_FLAGS 10
 
 enum CMD {
     RUN=1,
@@ -9,5 +10,8 @@ enum CMD {
 };
 
 
-//for now implement without to much flags.
-enum CMD parsecmd(char* command);
+//for now implement without to much flags (10).
+char** parsecmd(char* command);
+
+//free a command.
+void freeCmd(char** command);
