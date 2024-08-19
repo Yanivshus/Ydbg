@@ -1,15 +1,22 @@
 CC=gcc
-BUILD=build
+BUILD_DIR=build
+SRC_DIR=src
 
-.PHONY: all clean
+.PHONY: all app clean
 
-all: $(BUILD)/Ydbg
+app: Ydbg
 
-$(BUILD)/Ydbg: main.c | $(BUILD)
-	$(CC) -o $(BUILD)/Ydbg main.c
+Ydbg: $(BUILD_DIR)/main.o $(BUILD_DIR)/cmd.o  | $(BUILD_DIR)
+	$(CC) -o $@ $^
 
-$(BUILD):
-	mkdir -p $(BUILD)
+$(BUILD_DIR)/main.o: main.c | $(BUILD_DIR)
+	$(CC) -c $< -o $@
+
+$(BUILD_DIR)/cmd.o: $(SRC_DIR)/cmd.c $(SRC_DIR)/cmd.h | $(BUILD_DIR)
+	$(CC) -c $< -o $@
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -rf $(BUILD)
+	rm -rf $(BUILD_DIR)

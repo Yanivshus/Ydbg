@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #define MAX_FLAGS 10
 
 enum CMD {

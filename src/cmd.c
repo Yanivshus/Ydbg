@@ -1,20 +1,16 @@
 #include "cmd.h"
 
-
-
 char** parsecmd(char* command)
 {
-    const char* del = " ";
-    char* result[MAX_FLAGS] = (char**)malloc(MAX_FLAGS * sizeof(char*));
-    int count = 0;
-
+    char** result = (char**)malloc(MAX_FLAGS * sizeof(char));
+    
     if(result == NULL){
-        perror("parseCmmd: problem allocating result\n");
+        perror("parseCmd: problem allocating result\n");
         return NULL;
     }
-
+    
     //taking the first token to start parsing.
-    char* token  = strtok(command, del);
+    char* token = strtok(command, " ");
     int i = 0;
     while(token != NULL && i < MAX_FLAGS)
     {
@@ -23,7 +19,7 @@ char** parsecmd(char* command)
         if(result[i] == NULL)
         {
             perror("Problem allocating memory to cmd, free rest.\n");
-            for (int j = 0; result[j] != NULL; j++)
+            for (int j = 0; j < i; j++)
             {
                 free(result[j]);
             }
@@ -31,9 +27,9 @@ char** parsecmd(char* command)
             return NULL;
         }
         //copy the the token to array.
-        strncpy(result[i], token, strlen(result[i]));
+        strcpy(result[i], token);
         i++;
-        token = strtok(NULL, del);
+        token = strtok(NULL, " ");
     }
     result[i] = NULL;
     return result;

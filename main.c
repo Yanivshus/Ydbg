@@ -5,10 +5,12 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include "src/cmd.h"
 
 int main(int argc, char** argv)
 {
     printf("Welcome to Ydbg\n");
+
     if(argc < 2)
         fprintf(stderr, "Usage: ./%s <name of program to debug> \n", argv[0]);
 
@@ -25,8 +27,8 @@ int main(int argc, char** argv)
         execvp(argv[1], &argv[1]); // execute the process passed as an argument
     }
     else{
-        int status, syscall, retval;
-        waitpid(p,&status, 0);
+        //int status, syscall, retval;
+        //waitpid(p,&status, 0);
     }
 
 
