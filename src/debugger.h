@@ -7,7 +7,11 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <sys/syscall.h>
+#include <sys/user.h>
 
 void run(char** argv);
 
 void debugger(pid_t p);
+
+void printProgramAdresses(pid_t p);

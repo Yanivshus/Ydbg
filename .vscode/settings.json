@@ -5,6 +5,7 @@
         "wait.h": "c",
         "signal.h": "c",
         "cmd.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "file.h": "c"
     }
 }
