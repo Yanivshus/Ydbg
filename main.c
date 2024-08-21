@@ -1,35 +1,26 @@
 #include <stdio.h>
-#include <sys/ptrace.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <sys/wait.h>
-#include <signal.h>
 #include "src/cmd.h"
+#include "src/debugger.h"
 
 int main(int argc, char** argv)
 {
     printf("Welcome to Ydbg\n");
 
-    if(argc < 2)
-        fprintf(stderr, "Usage: ./%s <name of program to debug> \n", argv[0]);
+    //check if program used correctly.
+    if(argc < 2) { fprintf(stderr, "Usage: ./%s <name of program to debug> \n", argv[0]); exit(1); }
+    //check if file provided to debug exists.
+    if(checkIfFileExists(argv[1]) == 0){ fprintf(stderr, "File %s doesn't exists\n", argv[1]); exit(1); }
 
     pid_t p = fork();
-    //check if child process created.
-    if(p < 0){
-        fprintf(stderr, "Problem creating child procces!\nexiting...\n");
-        exit(1);
-    }
-    else if(p == 0){
-        //tells to the krenel that the parent process willl controll the child.
-        ptrace(PTRACE_TRACEME);
-        kill(getpid(), SIGSTOP); // Stop the child process immediately
-        execvp(argv[1], &argv[1]); // execute the process passed as an argument
+
+    if(p == 0)
+    {
+        run(argv);
     }
     else{
-        //int status, syscall, retval;
-        //waitpid(p,&status, 0);
+        debugger(p);
     }
+    
 
-
+    return 0;
 }

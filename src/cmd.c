@@ -41,5 +41,14 @@ void freeCmd(char** command){
         free(command[i]);
     }
     free(command);
-    
+}
+
+int checkIfFileExists(const char* fname)
+{
+    FILE* file;
+    if((file = fopen(fname, "r"))){
+        fclose(file);
+        return 1;
+    }
+    return 0;
 }

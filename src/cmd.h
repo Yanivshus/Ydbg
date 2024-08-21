@@ -16,3 +16,5 @@ char** parsecmd(char* command);
 
 //free a command.
 void freeCmd(char** command);
+
+int checkIfFileExists(const char* fname);
