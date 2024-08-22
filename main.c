@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <sys/personality.h>
 #include "src/cmd.h"
 #include "src/debugger.h"
 #define NO 'n'
@@ -6,6 +7,10 @@
 
 int main(int argc, char** argv)
 {
+    // Disable ASLR for this process so all adrreses remain consistent.
+    unsigned long current_personality = personality(0xffffffff);
+    personality(current_personality | ADDR_NO_RANDOMIZE);
+
     //check if program used correctly.
     if(argc < 2) { fprintf(stderr, "Usage: ./%s <name of program to debug> \n", argv[0]); exit(1); }
     //check if file provided to debug exists.
