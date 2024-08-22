@@ -9,9 +9,13 @@
 #include <signal.h>
 #include <sys/syscall.h>
 #include <sys/user.h>
+#include <stdint.h>
+#include <elf.h>
+#include <fcntl.h>
+#include <string.h>
 
 void run(char** argv);
 
 void debugger(pid_t p);
 
-void printProgramAdresses(pid_t p);
+void printProgramAdresses(const char* binary_path);

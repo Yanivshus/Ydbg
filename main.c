@@ -18,15 +18,7 @@ int main(int argc, char** argv)
     char cmd[SIZE] = {0};
     if(yn != NO)
     {
-        pid_t ptmp = fork();
-        if(ptmp==0)
-        {
-            run(argv);
-        }
-        else
-        {
-            printProgramAdresses(ptmp);
-        }
+        printProgramAdresses(argv[1]);
     }
 
 
