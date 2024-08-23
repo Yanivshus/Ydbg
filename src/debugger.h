@@ -13,7 +13,11 @@
 #include <elf.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/select.h>
+#include <stdlib.h>
 #include "cmd.h"
+
+#define BASE_SIZE 256
 
 enum CMD {
     RUN=1,
@@ -22,7 +26,8 @@ enum CMD {
     BREAK=4,
     REGS=5,
     INS=6,
-    QUIT=7
+    QUIT=7,
+    HELP=8
 };
 
 void run(char** argv);
@@ -31,9 +36,17 @@ void debugger(pid_t p);
 
 void printProgramAdresses(const char* binary_path);
 
-void doCommand(char* fullcmd);
+int doCommand(char* fullcmd, pid_t pid, char* procName);
 
 //get enum that represent a command
 enum CMD getIdByCommand(char** fullcmd);
 
 int checkIfFileExists(const char* fname);
+
+void printHelp();
+
+void checkRegs(pid_t p);
+
+unsigned long get_base_addr(pid_t pid);
+
+void continue_run(pid_t pid);

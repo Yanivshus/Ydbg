@@ -12,6 +12,9 @@
         "fcntl.h": "c",
         "stdint.h": "c",
         "user.h": "c",
-        "ptrace.h": "c"
+        "ptrace.h": "c",
+        "elf.h": "c",
+        "select.h": "c",
+        "stdio.h": "c"
     }
 }

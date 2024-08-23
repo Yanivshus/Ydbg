@@ -6,6 +6,8 @@
 
 int main(int argc, char** argv)
 {
+    printf("Welcome to Ydbg!\nEnter help to see commands.\n");
+
     // Disable ASLR for this process so all adrreses remain consistent.
     unsigned long current_personality = personality(0xffffffff);
     personality(current_personality | ADDR_NO_RANDOMIZE);
@@ -17,25 +19,59 @@ int main(int argc, char** argv)
 
 
     char input[100] = {0};
-    while(1)
+
+    pid_t p = fork();
+    if(p == 0)
     {
-        printf("Ygdb> ");
-        fgets(input, sizeof(input), stdin);
-        input[strlen(input) - 1] = '\0';
-
-        doCommand(input);
+        ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+        kill(getpid(), SIGSTOP);
+        execvp(argv[1], &argv[1]);
+        perror("execvp");  
+        exit(1);
     }
+    else if(p > 0)
+    {
+        int status;
+        fd_set read_fds;
+        waitpid(p, &status, 0);  // Wait for the child to stop
+        printf("Running %s on pid: %d.\n", argv[1], p);
 
+        if (WIFEXITED(status) || WIFSIGNALED(status)) {
+            fprintf(stderr, "Error: Child process terminated unexpectedly.\n");
+            return 1;
+        }
+       
+        while(1)
+        {
+            if (WIFSTOPPED(status)) 
+            {
+                int should_wait = 0;
+                printf("Ygdb> ");
+                if(fgets(input, sizeof(input), stdin) != NULL && input[0] != '\n')
+                {
+                    int len = strlen(input);
+                    if(len > 0)
+                    { 
+                        input[len - 1] = '\0'; 
+                    }
+                    should_wait = doCommand(input,p,argv[1]);
+                }
+                if(should_wait == 1)
+                {
+                    waitpid(p, &status, 0);
+                }
+
+            }
+            
+            // exit if program exited.
+            if (WIFEXITED(status) || WIFSIGNALED(status)) {
+                printf("Child process exited with status %d.\n", WEXITSTATUS(status));
+                break;
+            }
+        }
+    }
     return 0;
 }
 
-void printHelp(){
-    printf("    Help menu: \n");
-    printf("    s - step\n");
-    printf("    c - continue run\n");
-    printf("    b <ADDR> - set breakpoint at address\n");
-    printf("    regs - watch cpu registers.\n");
-    printf("    ins - inspect symbol table and addresses.\n");
-    printf("    quit - exit program.\n");
-}
+
 

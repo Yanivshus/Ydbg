@@ -142,7 +142,7 @@ void printProgramAdresses(const char* binary_path)
         if(symtab[i].st_name !=0)
         {
             const char* symbol_name = &strtab_data[symtab[i].st_name];
-            printf("0x%lx %s\n", symtab[i].st_value, symbol_name);
+            printf("    0x%lx %s\n", symtab[i].st_value, symbol_name);
         }
     }
     
@@ -173,10 +173,15 @@ enum CMD getIdByCommand(char** cmd)
     if(strcmp(cmd[0],"quit") == 0){
         return QUIT;
     }
+    if(strcmp(cmd[0],"help") == 0){
+        return HELP;
+    }
+    
+
 }
 
 
-void doCommand(char* fullcmd)
+int doCommand(char* fullcmd, pid_t pid, char* procName)
 {
     char** cmd = parsecmd(fullcmd);
     enum CMD com = getIdByCommand(cmd);
@@ -184,7 +189,30 @@ void doCommand(char* fullcmd)
     {
         freeCmd(cmd);
         exit(1);
-    };
+    }
+    else if(com == HELP)
+    {
+        printHelp();
+        return 0;
+    }
+    else if(com == INS)
+    {
+        printProgramAdresses(procName);
+        return 0;
+    }
+    else if(com == REGS)
+    {
+        checkRegs(pid);
+        return 0;
+    }
+    else if (com == CON)
+    {
+        continue_run(pid);
+        return 1;
+
+    }
+    freeCmd(cmd);
+    return 0;
 }
 
 int checkIfFileExists(const char* fname){
@@ -194,4 +222,58 @@ int checkIfFileExists(const char* fname){
         return 1;
     }
     return 0;
+}
+
+void printHelp()
+{
+    printf("    Help menu: \n");
+    printf("    s - step\n");
+    printf("    c - continue run\n");
+    printf("    b <ADDR> - set breakpoint at address\n");
+    printf("    regs - watch cpu registers.\n");
+    printf("    ins - inspect symbol table and addresses.\n");
+    printf("    quit - exit program.\n");
+}
+
+
+void checkRegs(pid_t p)
+{
+    struct user_regs_struct regs;
+    ptrace(PTRACE_GETREGS, p, NULL, &regs);
+    printf("    RIP: 0x%llx\n", regs.rip); // Instruction pointer
+    printf("    RAX: 0x%llx\n", regs.rax); // Accumulator register
+    printf("    RBX: 0x%llx\n", regs.rbx); // Base register
+    printf("    RCX: 0x%llx\n", regs.rcx); // Counter register
+    printf("    RDX: 0x%llx\n", regs.rdx); // Data register
+    printf("    RSP: 0x%llx\n", regs.rsp); // Stack pointer
+    printf("    RBP: 0x%llx\n", regs.rbp); // Base pointer
+}
+
+
+unsigned long get_base_addr(pid_t pid)
+{
+    char maps_filename[BASE_SIZE];
+    sprintf(maps_filename, BASE_SIZE, "/proc/%d/maps", pid);
+
+    FILE* maps = fopen(maps_filename, "r");
+    if(!maps){
+        perror("fopen: get_base_addr");
+        return 0;
+    }
+
+    unsigned long base_addr = 0;
+    char line[BASE_SIZE];
+
+    if(fgets(line,sizeof(line), maps)){
+        sscanf(line, "%lx", &base_addr);
+    }
+
+    fclose(maps);
+    return base_addr;
+}
+
+
+void continue_run(pid_t pid)
+{
+    ptrace(PTRACE_CONT, pid, NULL, NULL);
 }
