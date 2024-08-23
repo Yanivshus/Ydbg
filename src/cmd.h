@@ -4,17 +4,14 @@
 
 #define MAX_FLAGS 10
 
-enum CMD {
-    RUN=1,
-    BREAK=2,
-    CON=3
-};
 
-
-//for now implement without to much flags (10).
+//parsing a command by ' ' delimeter and reterning array of strings.
 char** parsecmd(char* command);
 
 //free a command.
 void freeCmd(char** command);
 
+//check if file exists on disk.
 int checkIfFileExists(const char* fname);
+
+

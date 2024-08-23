@@ -152,3 +152,46 @@ void printProgramAdresses(const char* binary_path)
     free(strtab_data);
     close(fd);
 }
+
+enum CMD getIdByCommand(char** cmd)
+{
+    if(strcmp(cmd[0],"s") == 0){
+        return STEP;
+    }
+    if(strcmp(cmd[0],"c") == 0){
+        return CON;
+    }
+    if(strcmp(cmd[0],"b") == 0){
+        return BREAK;
+    }
+    if(strcmp(cmd[0],"regs") == 0){
+        return REGS;
+    }
+    if(strcmp(cmd[0],"ins") == 0){
+        return INS;
+    }
+    if(strcmp(cmd[0],"quit") == 0){
+        return QUIT;
+    }
+}
+
+
+void doCommand(char* fullcmd)
+{
+    char** cmd = parsecmd(fullcmd);
+    enum CMD com = getIdByCommand(cmd);
+    if(com == QUIT)
+    {
+        freeCmd(cmd);
+        exit(1);
+    };
+}
+
+int checkIfFileExists(const char* fname){
+    FILE* file;
+    if((file = fopen(fname, "r"))){
+        fclose(file);
+        return 1;
+    }
+    return 0;
+}

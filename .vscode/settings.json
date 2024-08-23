@@ -9,6 +9,9 @@
         "file.h": "c",
         "debugger.h": "c",
         "personality.h": "c",
-        "fcntl.h": "c"
+        "fcntl.h": "c",
+        "stdint.h": "c",
+        "user.h": "c",
+        "ptrace.h": "c"
     }
 }

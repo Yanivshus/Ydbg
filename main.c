@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <sys/personality.h>
-#include "src/cmd.h"
 #include "src/debugger.h"
 #define NO 'n'
 #define SIZE 100
@@ -16,18 +15,27 @@ int main(int argc, char** argv)
     //check if file provided to debug exists.
     if(checkIfFileExists(argv[1]) == 0){ fprintf(stderr, "File %s doesn't exists\n", argv[1]); exit(1); }
 
-    printf("Welcome to Ydbg\n");
-    printf("Ydbg> Want to get adresses to debug? type n if not: ");
-    char yn = 0;
-    scanf("%c", &yn);
-    char cmd[SIZE] = {0};
-    if(yn != NO)
+
+    char input[100] = {0};
+    while(1)
     {
-        printProgramAdresses(argv[1]);
+        printf("Ygdb> ");
+        fgets(input, sizeof(input), stdin);
+        input[strlen(input) - 1] = '\0';
+
+        doCommand(input);
     }
-
-
-    
 
     return 0;
 }
+
+void printHelp(){
+    printf("    Help menu: \n");
+    printf("    s - step\n");
+    printf("    c - continue run\n");
+    printf("    b <ADDR> - set breakpoint at address\n");
+    printf("    regs - watch cpu registers.\n");
+    printf("    ins - inspect symbol table and addresses.\n");
+    printf("    quit - exit program.\n");
+}
+
