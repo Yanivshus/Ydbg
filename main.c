@@ -60,7 +60,9 @@ int main(int argc, char** argv)
                 {
                     waitpid(p, &status, 0);
                 }
-
+                else if(should_wait == 2){
+                    printf("Error processing given address");
+                }
             }
             
             // exit if program exited.

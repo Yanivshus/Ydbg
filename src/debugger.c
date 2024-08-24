@@ -57,6 +57,7 @@ void printProgramAdresses(const char* binary_path)
     }
     //move the cursor to read from section header table.
     lseek(fd,ehdr.e_shoff, SEEK_SET);
+    
 
     //try to read section header table.
     Elf64_Shdr* shdrs = malloc(ehdr.e_shnum * sizeof(Elf64_Shdr));
@@ -193,23 +194,47 @@ int doCommand(char* fullcmd, pid_t pid, char* procName)
     else if(com == HELP)
     {
         printHelp();
+        freeCmd(cmd);
         return 0;
     }
     else if(com == INS)
     {
         printProgramAdresses(procName);
+        freeCmd(cmd);
         return 0;
     }
     else if(com == REGS)
     {
         checkRegs(pid);
+        freeCmd(cmd);
         return 0;
     }
     else if (com == CON)
     {
         continue_run(pid);
+        freeCmd(cmd);
         return 1;
 
+    }
+    else if(com == STEP)
+    {
+        single_step(pid);
+        freeCmd(cmd);
+        return 1;
+    }
+    else if(com == BREAK)
+    {
+        if(cmd[1][0] != '0' && cmd[1][1] != 'x'){
+            freeCmd(cmd);
+            return 2;
+        }
+        else{
+            char* eptr;
+            unsigned long value = strtol(cmd[1], &eptr, 16); // get address for breakpoint.
+            unsigned long base_addr = get_base_addr(pid);
+            printf("%ld", base_addr);
+            
+        }
     }
     freeCmd(cmd);
     return 0;
@@ -250,30 +275,12 @@ void checkRegs(pid_t p)
 }
 
 
-unsigned long get_base_addr(pid_t pid)
-{
-    char maps_filename[BASE_SIZE];
-    sprintf(maps_filename, BASE_SIZE, "/proc/%d/maps", pid);
-
-    FILE* maps = fopen(maps_filename, "r");
-    if(!maps){
-        perror("fopen: get_base_addr");
-        return 0;
-    }
-
-    unsigned long base_addr = 0;
-    char line[BASE_SIZE];
-
-    if(fgets(line,sizeof(line), maps)){
-        sscanf(line, "%lx", &base_addr);
-    }
-
-    fclose(maps);
-    return base_addr;
-}
-
-
 void continue_run(pid_t pid)
 {
     ptrace(PTRACE_CONT, pid, NULL, NULL);
+}
+
+void single_step(pid_t pid)
+{
+    ptrace(PTRACE_SINGLESTEP, pid, NULL, NULL);
 }

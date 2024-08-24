@@ -16,8 +16,9 @@
 #include <sys/select.h>
 #include <stdlib.h>
 #include "cmd.h"
+#include "breakpoints.h"
 
-#define BASE_SIZE 256
+
 
 enum CMD {
     RUN=1,
@@ -47,6 +48,6 @@ void printHelp();
 
 void checkRegs(pid_t p);
 
-unsigned long get_base_addr(pid_t pid);
-
 void continue_run(pid_t pid);
+
+void single_step(pid_t pid);
