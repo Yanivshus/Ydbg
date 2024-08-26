@@ -228,13 +228,22 @@ int doCommand(char* fullcmd, pid_t pid, char* procName)
             freeCmd(cmd);
             return 2;
         }
-        else{
+        else
+        {
             char* eptr;
             unsigned long value = strtol(cmd[1], &eptr, 16); // get address for breakpoint.
             unsigned long base_addr = get_base_addr(pid);
-            printf("%ld", base_addr);
+            unsigned long full_addr = base_addr + value;
+            printf("%ld", full_addr);
+            set_breakpoint(pid, (void*)full_addr);
+            freeCmd(cmd);
+            return 0;
             
         }
+    }
+    else
+    {
+        printf("Ydbg> Command <%s> doesn't exists. ", cmd[0]);
     }
     freeCmd(cmd);
     return 0;

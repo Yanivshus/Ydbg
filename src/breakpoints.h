@@ -10,6 +10,6 @@
 
 #define BASE_SIZE 256
 
-void set_breakpoint(pid_t pid, void *addr);
+void set_breakpoint(pid_t pid, unsigned long *addr);
 
 unsigned long get_base_addr(pid_t pid);

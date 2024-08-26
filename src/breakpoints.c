@@ -1,6 +1,7 @@
 #include "breakpoints.h"
+#include <string.h>
 
-void set_breakpoint(pid_t pid, void *addr)
+void set_breakpoint(pid_t pid, unsigned long *addr)
 {
     // Read original byte at addr
     uint8_t orig_byte = ptrace(PTRACE_PEEKDATA, pid, addr, NULL);
