@@ -7,7 +7,7 @@ SRC_DIR=src
 app: Ydbg
 
 Ydbg: $(BUILD_DIR)/main.o $(BUILD_DIR)/cmd.o $(BUILD_DIR)/debugger.o $(BUILD_DIR)/breakpoints.o  | $(BUILD_DIR)
-	$(CC) -o $@ $^
+	$(CC) -static -o $@ $^
 
 $(BUILD_DIR)/main.o: main.c | $(BUILD_DIR)
 	$(CC) -c $< -o $@

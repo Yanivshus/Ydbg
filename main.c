@@ -8,9 +8,7 @@ int main(int argc, char** argv)
 {
     printf("Welcome to Ydbg!\nEnter help to see commands.\n");
 
-    // Disable ASLR for this process so all adrreses remain consistent.
-    unsigned long current_personality = personality(0xffffffff);
-    personality(current_personality | ADDR_NO_RANDOMIZE);
+
 
     //check if program used correctly.
     if(argc < 2) { fprintf(stderr, "Usage: ./%s <name of program to debug> \n", argv[0]); exit(1); }
@@ -23,6 +21,16 @@ int main(int argc, char** argv)
     pid_t p = fork();
     if(p == 0)
     {
+        // Disable ASLR for this process so all adrreses remain consistent.
+        unsigned long current_personality = personality(0xffffffff);
+        personality(current_personality | ADDR_NO_RANDOMIZE);
+        if (personality(0xffffffff) == -1) {
+            perror("personality get failed");
+        } else if (personality(current_personality | ADDR_NO_RANDOMIZE) == -1) {
+            perror("personality set failed");
+        } else {
+            printf("ASLR disabled successfully.\n");
+        }
         ptrace(PTRACE_TRACEME, 0, NULL, NULL);
         kill(getpid(), SIGSTOP);
         execvp(argv[1], &argv[1]);
