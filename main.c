@@ -22,15 +22,9 @@ int main(int argc, char** argv)
     if(p == 0)
     {
         // Disable ASLR for this process so all adrreses remain consistent.
-        unsigned long current_personality = personality(0xffffffff);
-        personality(current_personality | ADDR_NO_RANDOMIZE);
-        if (personality(0xffffffff) == -1) {
-            perror("personality get failed");
-        } else if (personality(current_personality | ADDR_NO_RANDOMIZE) == -1) {
-            perror("personality set failed");
-        } else {
-            printf("ASLR disabled successfully.\n");
-        }
+        personality(ADDR_NO_RANDOMIZE);
+        
+
         ptrace(PTRACE_TRACEME, 0, NULL, NULL);
         kill(getpid(), SIGSTOP);
         execvp(argv[1], &argv[1]);
@@ -51,8 +45,12 @@ int main(int argc, char** argv)
        
         while(1)
         {
-            if (WIFSTOPPED(status)) 
+
+            if (WIFSTOPPED(status) || WSTOPSIG(status) == SIGTRAP) 
             {
+                if(WSTOPSIG(status) == SIGTRAP){
+                    printf("Breakpoint hit!\n");
+                }
                 int should_wait = 0;
                 printf("Ygdb> ");
                 if(fgets(input, sizeof(input), stdin) != NULL && input[0] != '\n')
@@ -64,6 +62,7 @@ int main(int argc, char** argv)
                     }
                     should_wait = doCommand(input,p,argv[1]);
                 }
+
                 if(should_wait == 1)
                 {
                     waitpid(p, &status, 0);

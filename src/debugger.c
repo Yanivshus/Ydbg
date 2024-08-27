@@ -234,8 +234,8 @@ int doCommand(char* fullcmd, pid_t pid, char* procName)
             unsigned long value = strtol(cmd[1], &eptr, 16); // get address for breakpoint.
             unsigned long base_addr = get_base_addr(pid);
             unsigned long full_addr = base_addr + value;
-            //printf("%ld", full_addr);
-            set_breakpoint(pid, (void*)full_addr);
+            printf("%ld\n", full_addr);
+            set_breakpoint(pid, full_addr);
             freeCmd(cmd);
             return 0;
             

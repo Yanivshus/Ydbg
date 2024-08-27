@@ -1,14 +1,20 @@
 #include "breakpoints.h"
 #include <string.h>
 
-void set_breakpoint(pid_t pid, unsigned long *addr)
+void set_breakpoint(pid_t pid, unsigned long addr)
 {
-    // Read original byte at addr
-    uint8_t orig_byte = ptrace(PTRACE_PEEKTEXT, pid, (void*)addr, NULL);
+    // Read original word at addr
+    long orig_word = ptrace(PTRACE_PEEKDATA, pid, addr, NULL);
+    printf("%ld\n", orig_word);
+    if (orig_word == -1 && errno !=0)
+    {
+        perror("ptrace PEEKTEXT failed");
+        return;
+    }
 
-    // Replace it with INT 3 (0xCC)
-    uint8_t int3 = 0xCC;
-    if(ptrace(PTRACE_POKETEXT, pid, (void*)addr, (void*)((orig_byte & 0xFFFFFF00) | int3)) == -1)
+    // Replace the least significant byte with INT 3 (0xCC)
+    long int3_word = (orig_word & ~0xFF) | 0xCC;
+    if (ptrace(PTRACE_POKEDATA, pid, addr, int3_word) == -1)
     {
         perror("ptrace POKETEXT failed");
         return;
@@ -33,7 +39,7 @@ unsigned long get_base_addr(pid_t pid)
     // Read through the maps file line by line
     while (fgets(line, sizeof(line), maps_file)) {
         // Check if the line corresponds to an executable segment
-        if (strstr(line, "r-xp") != NULL) {
+        if (strstr(line, "r--p") != NULL) {
             // Extract the base address from the first column
             sscanf(line, "%lx", &base_address);
             break;
