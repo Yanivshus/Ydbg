@@ -11,10 +11,6 @@
 
 #define BASE_SIZE 256
 
-typedef struct {
-    unsigned long addr;
-    uint8_t orig_byte;
-} Breakpoint;
 
 void set_breakpoint(pid_t pid, unsigned long addr);
 

@@ -3,8 +3,9 @@
 
 void set_breakpoint(pid_t pid, unsigned long addr)
 {
+    errno = 0;
     // Read original word at addr
-    long orig_word = ptrace(PTRACE_PEEKDATA, pid, addr, NULL);
+    long orig_word = ptrace(PTRACE_PEEKDATA, pid, (void*)addr, NULL);
     printf("%ld\n", orig_word);
     if (orig_word == -1 && errno !=0)
     {
@@ -14,7 +15,7 @@ void set_breakpoint(pid_t pid, unsigned long addr)
 
     // Replace the least significant byte with INT 3 (0xCC)
     long int3_word = (orig_word & ~0xFF) | 0xCC;
-    if (ptrace(PTRACE_POKEDATA, pid, addr, int3_word) == -1)
+    if (ptrace(PTRACE_POKEDATA, pid, (void*)addr, (void*)int3_word) == -1)
     {
         perror("ptrace POKETEXT failed");
         return;

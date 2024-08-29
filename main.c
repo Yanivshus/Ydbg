@@ -48,9 +48,6 @@ int main(int argc, char** argv)
 
             if (WIFSTOPPED(status) || WSTOPSIG(status) == SIGTRAP) 
             {
-                if(WSTOPSIG(status) == SIGTRAP){
-                    printf("Breakpoint hit!\n");
-                }
                 int should_wait = 0;
                 printf("Ygdb> ");
                 if(fgets(input, sizeof(input), stdin) != NULL && input[0] != '\n')
