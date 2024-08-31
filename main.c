@@ -34,7 +34,7 @@ int main(int argc, char** argv)
     else if(p > 0)
     {
         int status;
-        fd_set read_fds;
+        
         waitpid(p, &status, 0);  // Wait for the child to stop
         printf("Running %s on pid: %d.\n", argv[1], p);
 

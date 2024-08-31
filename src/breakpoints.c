@@ -40,8 +40,7 @@ unsigned long get_base_addr(pid_t pid)
     // Read through the maps file line by line
     while (fgets(line, sizeof(line), maps_file)) {
         // Check if the line corresponds to an executable segment
-        if (strstr(line, "r--p") != NULL) {
-            // Extract the base address from the first column
+       if (strstr(line, "r-xp")) {
             sscanf(line, "%lx", &base_address);
             break;
         }
