@@ -22,14 +22,20 @@ int main(int argc, char** argv)
     if(p == 0)
     {
         // Disable ASLR for this process so all adrreses remain consistent.
-        personality(ADDR_NO_RANDOMIZE);
+            const int old_personality = personality(ADDR_NO_RANDOMIZE);
+            if (!(old_personality & ADDR_NO_RANDOMIZE)) {
+                const int new_personality = personality(ADDR_NO_RANDOMIZE);
+                if (new_personality & ADDR_NO_RANDOMIZE) {
+                       ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+                        kill(getpid(), SIGSTOP);
+                        execvp(argv[1], &argv[1]);
+                        perror("execvp");  
+                        exit(1);
+                }
+            }
         
 
-        ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-        kill(getpid(), SIGSTOP);
-        execvp(argv[1], &argv[1]);
-        perror("execvp");  
-        exit(1);
+     
     }
     else if(p > 0)
     {
@@ -57,6 +63,11 @@ int main(int argc, char** argv)
                     { 
                         input[len - 1] = '\0'; 
                     }
+                    if(WSTOPSIG(status) == SIGTRAP) // restore breakpoint.
+                    {
+
+                    }
+
                     should_wait = doCommand(input,p,argv[1]);
                 }
 

@@ -1,6 +1,8 @@
 #include "breakpoints.h"
 #include <string.h>
 
+ls_bp ls = {.count=0};
+
 void set_breakpoint(pid_t pid, unsigned long addr)
 {
     errno = 0;
@@ -19,6 +21,28 @@ void set_breakpoint(pid_t pid, unsigned long addr)
     {
         perror("ptrace POKETEXT failed");
         return;
+    }
+
+    breakpoint bp = {.addr=addr, .original_data=orig_word,.is_enabled=true};
+    ls.ls_bp[ls.count] = bp;
+    ls.count++;
+    
+}
+
+void remove_breakpoint(pid_t pid, unsigned long addr){
+    for (int i = 0; i < ls.count; i++)
+    {
+        if(ls.ls_bp[i].addr == addr && ls.ls_bp[i].is_enabled == true)
+        {
+            if (ptrace(PTRACE_POKETEXT, pid, addr, (void *)ls.ls_bp[i].original_data) == -1) {
+                perror("PTRACE_POKETEXT");
+                return;
+            }
+
+            ls.ls_bp[i].is_enabled = false;
+            printf("Breakpoint removed at %p\n", (void*)addr);
+            return;
+        }
     }
     
 }
